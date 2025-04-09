@@ -7,32 +7,32 @@ import os, json
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
 
-# Environment configuration
+
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///quiz.db')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour session timeout
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600
 
 db = SQLAlchemy(app)
 
-# Custom error handler
+
 class QuizException(Exception):
     pass
 
-# Database models
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=True)  # Yeni sütun
-    password_hash = db.Column(db.String(128))  # Yeni sütun
+    email = db.Column(db.String(120), unique=True, nullable=True)
+    password_hash = db.Column(db.String(128))
     high_score = db.Column(db.Integer, default=0)
     last_score = db.Column(db.Integer, default=0)
     attempts = db.Column(db.Integer, default=0)
-    is_admin = db.Column(db.Boolean, default=False)  # Yeni sütun
+    is_admin = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,8 +41,8 @@ class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(500), nullable=False)
-    options = db.Column(db.JSON, nullable=False)  # {'1': 'Option A', '2': 'Option B', ...}
-    correct_option = db.Column(db.Integer, nullable=False)  # 1-4
+    options = db.Column(db.JSON, nullable=False)
+    correct_option = db.Column(db.Integer, nullable=False)
     category = db.Column(db.String(50), nullable=False)
     difficulty = db.Column(db.String(20), default='medium')
     is_active = db.Column(db.Boolean, default=True)
@@ -50,16 +50,16 @@ class Question(db.Model):
 def initialize_db():
     with app.app_context():
         try:
-            # Veritabanı dosyası ve tabloları kontrol et
+
             inspector = inspect(db.engine)
             tables_exist = inspector.get_table_names()
             
-            # Eğer hiç tablo yoksa oluştur
+
             if not tables_exist:
                 db.create_all()
                 app.logger.info("Database tables created successfully")
                 
-                # Admin kullanıcısını oluştur (eğer yoksa)
+
                 if not User.query.filter_by(is_admin=True).first():
                     admin = User(
                         username='admin',
@@ -82,7 +82,7 @@ def initialize_db():
 def add_sample_questions():
     with app.app_context():
         try:
-            # Tüm kategorilerden 2'şer soru
+
             questions = [
                 # 1. Discord.py (Sohbet Botu)
                 {
@@ -241,7 +241,7 @@ def add_sample_questions():
                 }
             ]
 
-            # Veritabanına ekleme
+
             added_count = 0
             for q in questions:
                 if not Question.query.filter_by(text=q['text']).first():
@@ -334,7 +334,7 @@ def quiz():
                        .limit(5)\
                        .all()
         
-        # JSON string'leri Python dict'e çevir
+
         for q in questions:
             q.options = json.loads(q.options)
         
@@ -370,7 +370,7 @@ def submit():
         for question in questions:
             user_answer = request.form.get(f'q{question.id}')
             if user_answer and int(user_answer) == question.correct_option:
-                score += 10  # 10 points per question
+                score += 10
         
         user.last_score = score
         if score > user.high_score:
@@ -395,7 +395,7 @@ def results():
         
         global_high = db.session.query(func.max(User.high_score)).scalar()
         
-        # Calculate rank
+
         rank = db.session.query(
             func.count(User.id)
         ).filter(
@@ -411,7 +411,7 @@ def results():
     except exc.SQLAlchemyError:
         raise QuizException("Failed to load results")
 
-# Admin routes
+
 @app.route('/admin/questions')
 def manage_questions():
     if 'user_id' not in session:
@@ -424,7 +424,7 @@ def manage_questions():
     questions = Question.query.all()
     return render_template('admin/questions.html', questions=questions)
 
-# API endpoints
+
 @app.route('/api/stats')
 def get_stats():
     try:
