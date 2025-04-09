@@ -5,9 +5,9 @@ from sqlalchemy import exc
 def add_sample_questions():
     with app.app_context():
         try:
-            # Tüm kategorilerden 2'şer soru
+
             questions = [
-                # 1. Discord.py (Sohbet Botu)
+
                 {
                     "text": "Discord.py'de yeni bir bot komutu oluşturmak için hangisi kullanılır?",
                     "options": {
@@ -33,7 +33,7 @@ def add_sample_questions():
                     "difficulty": "medium"
                 },
                 
-                # 2. Flask (Web Geliştirme)
+
                 {
                     "text": "Flask uygulaması oluşturmak için hangi obje kullanılır?",
                     "options": {
@@ -59,7 +59,7 @@ def add_sample_questions():
                     "difficulty": "medium"
                 },
                 
-                # 3. Yapay Zeka
+
                 {
                     "text": "Python'da derin öğrenme için en yaygın kütüphane hangisidir?",
                     "options": {
@@ -85,7 +85,7 @@ def add_sample_questions():
                     "difficulty": "hard"
                 },
                 
-                # 4. Bilgisayar Görüşü
+
                 {
                     "text": "OpenCV hangi amaçla kullanılır?",
                     "options": {
@@ -111,7 +111,7 @@ def add_sample_questions():
                     "difficulty": "medium"
                 },
                 
-                # 5. Doğal Dil İşleme (NLP)
+
                 {
                     "text": "NLTK kütüphanesinin temel kullanım amacı nedir?",
                     "options": {
@@ -164,7 +164,7 @@ def add_sample_questions():
                 }
             ]
 
-            # Veritabanına ekleme
+
             added_count = 0
             for q in questions:
                 if not Question.query.filter_by(text=q['text']).first():
