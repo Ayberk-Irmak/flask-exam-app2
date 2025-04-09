@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Sınav - PythonQuiz{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1><i class="fas fa-graduation-cap"></i> Python Uzmanlık Sınavı</h1>
+        <div class="score-info">
+            <div class="score-item">
+                <span class="score-label">Global Rekor:</span>
+                <span class="score-value">{{ global_high }}%</span>
+            </div>
+            <div class="score-item">
+                <span class="score-label">Senin Rekorun:</span>
+                <span class="score-value">{{ user_high }}%</span>
+            </div>
+        </div>
+        <div class="quiz-progress">
+            <span class="progress-text">Tamamlanma: <span id="progress-percent">0</span>%</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <form action="{{ url_for('submit') }}" method="post" id="quiz-form">
+        {% for question in questions %}
+        <div class="question-card" id="q{{ loop.index }}" {% if loop.index > 1 %}style="display:none;"{% endif %}>
+            <div class="question-header">
+                <div class="question-meta">
+                    <span class="question-number">Soru {{ loop.index }}/{{ questions|length }}</span>
+                    <span class="badge {{ question.difficulty }}">
+                        {% if question.difficulty == 'easy' %}
+                            <i class="fas fa-smile"></i> Kolay
+                        {% elif question.difficulty == 'medium' %}
+                            <i class="fas fa-meh"></i> Orta
+                        {% else %}
+                            <i class="fas fa-frown"></i> Zor
+                        {% endif %}
+                    </span>
+                </div>
+                <h3>{{ question.text }}</h3>
+            </div>
+            
+            <div class="options-container">
+                {% for option_num, option_text in question.options.items() %}
+                <label class="option">
+                    <input type="radio" 
+                           name="q{{ question.id }}" 
+                           value="{{ option_num }}" 
+                           required>
+                    <span class="option-content">
+                        <span class="option-letter">{{ ['A', 'B', 'C', 'D'][loop.index0] }}</span>
+                        <span class="option-text">{{ option_text }}</span>
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div class="question-navigation">
+                {% if loop.index > 1 %}
+                <button type="button" class="btn btn-outline prev-btn" onclick="showQuestion({{ loop.index - 1 }})">
+                    <i class="fas fa-arrow-left"></i> Önceki Soru
+                </button>
+                {% endif %}
+                
+                {% if loop.index < questions|length %}
+                <button type="button" class="btn btn-primary next-btn" onclick="validateAndProceed({{ loop.index }}, {{ loop.index + 1 }})">
+                    Sonraki Soru <i class="fas fa-arrow-right"></i>
+                </button>
+                {% else %}
+                <button type="submit" class="btn btn-primary submit-btn">
+                    Sınavı Tamamla <i class="fas fa-paper-plane"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </form>
+</div>
+
+<style>
+    .score-info {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 1rem 0;
+    }
+    
+    .score-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+    
+    .score-label {
+        font-weight: 500;
+        color: var(--text);
+    }
+    
+    .score-value {
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    /* Mevcut diğer stiller aynı kalacak */
+    .quiz-container {
+        background-color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    .quiz-container {
+        background-color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .quiz-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .quiz-header h1 {
+        font-size: 1.8rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+    
+    .quiz-progress {
+        margin-top: 1.5rem;
+    }
+    
+    .progress-text {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text);
+    }
+    
+    .progress-bar {
+        height: 10px;
+        background: var(--light);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--primary);
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+    
+    .question-card {
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    .question-card.active {
+        display: block;
+    }
+    
+    .question-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .question-number {
+        font-weight: 600;
+        color: var(--primary);
+    }
+    
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .badge.easy {
+        background-color: rgba(76, 201, 240, 0.1);
+        color: var(--success);
+    }
+    
+    .badge.medium {
+        background-color: rgba(248, 150, 30, 0.1);
+        color: var(--warning);
+    }
+    
+    .badge.hard {
+        background-color: rgba(247, 37, 133, 0.1);
+        color: var(--danger);
+    }
+    
+    .options-container {
+        margin: 2rem 0;
+    }
+    
+    .option {
+        display: block;
+        margin-bottom: 1rem;
+        padding: 1.2rem;
+        border-radius: 8px;
+        background: var(--light);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .option:hover {
+        background: #e9ecef;
+    }
+    
+    .option input[type="radio"] {
+        display: none;
+    }
+    
+    .option input[type="radio"]:checked + .option-content {
+        font-weight: 600;
+        color: var(--primary);
+    }
+    
+    .option input[type="radio"]:checked + .option-content .option-letter {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .option-content {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+    
+    .option-letter {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--text);
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+    
+    .question-navigation {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @media (max-width: 768px) {
+        .quiz-container {
+            padding: 1.5rem;
+        }
+        
+        .question-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .question-navigation {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .prev-btn, .next-btn, .submit-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    // Soru geçişleri için JavaScript
+    let currentQuestion = 1;
+    const totalQuestions = {{ questions|length }};
+    
+    function showQuestion(questionNum) {
+        document.querySelectorAll('.question-card').forEach(card => {
+            card.style.display = 'none';
+        });
+        document.getElementById(`q${questionNum}`).style.display = 'block';
+        currentQuestion = questionNum;
+        updateProgress();
+    }
+    
+    function validateAndProceed(current, next) {
+        const questionId = document.querySelector(`#q${current} input[type="radio"]:checked`);
+        if (!questionId) {
+            alert('Lütfen bir seçenek işaretleyin!');
+            return;
+        }
+        showQuestion(next);
+    }
+    
+    function updateProgress() {
+        const percent = Math.round((currentQuestion / totalQuestions) * 100);
+        document.getElementById('progress-percent').textContent = percent;
+        document.getElementById('progress-fill').style.width = `${percent}%`;
+    }
+    
+    // İlk soruyu göster
+    showQuestion(1);
+</script>
+{% endblock %}

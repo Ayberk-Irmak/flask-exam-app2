@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Sonuçlar - PythonQuiz{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <div class="results-header">
+        <h1><i class="fas fa-award"></i> Sınav Sonuçlarınız</h1>
+        <p>Sınav performansınız ve istatistikleriniz</p>
+    </div>
+    
+    <div class="results-grid">
+        <div class="result-card main-score">
+            <div class="score-value">{{ last_score }}</div>
+            <div class="score-label">Son Skorunuz</div>
+            <div class="score-max">/100</div>
+        </div>
+        
+        <div class="result-card">
+            <div class="result-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="result-content">
+                <div class="result-value">{{ high_score }}</div>
+                <div class="result-label">En Yüksek Skor</div>
+            </div>
+        </div>
+        
+        <div class="result-card">
+            <div class="result-icon">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="result-content">
+                <div class="result-value">{{ global_high }}</div>
+                <div class="result-label">Global Rekor</div>
+            </div>
+        </div>
+        
+        <div class="result-card">
+            <div class="result-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="result-content">
+                <div class="result-value">#{{ rank }}</div>
+                <div class="result-label">Sıralamanız</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="performance-section">
+        <h2>Performans Analizi</h2>
+        <div class="performance-bar">
+            <div class="performance-fill" style="width: {{ last_score }}%"></div>
+        </div>
+        <div class="performance-labels">
+            <span>0</span>
+            <span>50</span>
+            <span>100</span>
+        </div>
+        
+        {% if last_score == 100 %}
+        <div class="achievement-badge">
+            <i class="fas fa-star"></i>
+            <span>Mükemmel! Tüm soruları doğru yanıtladınız!</span>
+        </div>
+        {% elif last_score >= 80 %}
+        <div class="achievement-badge">
+            <i class="fas fa-thumbs-up"></i>
+            <span>Çok iyi! Harika bir performans gösterdiniz!</span>
+        </div>
+        {% elif last_score >= 50 %}
+        <div class="achievement-badge">
+            <i class="fas fa-check"></i>
+            <span>İyi! Daha fazla pratik yaparak gelişebilirsiniz.</span>
+        </div>
+        {% else %}
+        <div class="achievement-badge">
+            <i class="fas fa-book"></i>
+            <span>Temel konuları tekrar etmeniz faydalı olacaktır.</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('quiz') }}" class="btn btn-primary">
+            <i class="fas fa-redo"></i> Sınavı Tekrarla
+        </a>
+        <a href="{{ url_for('home') }}" class="btn btn-outline">
+            <i class="fas fa-home"></i> Ana Sayfa
+        </a>
+    </div>
+</div>
+
+<style>
+    .results-container {
+        background-color: white;
+        border-radius: 12px;
+        padding: 2.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .results-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .results-header h1 {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .results-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+    
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .result-card {
+        background-color: var(--light);
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .result-card.main-score {
+        background-color: var(--primary);
+        color: white;
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .main-score .score-value {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    
+    .main-score .score-label {
+        font-size: 1.2rem;
+        margin: 0.5rem 0;
+    }
+    
+    .main-score .score-max {
+        font-size: 1.5rem;
+        opacity: 0.8;
+    }
+    
+    .result-icon {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+    
+    .result-value {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+    }
+    
+    .result-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+    
+    .performance-section {
+        margin: 3rem 0;
+    }
+    
+    .performance-section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        color: var(--text);
+    }
+    
+    .performance-bar {
+        height: 12px;
+        background-color: var(--light);
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .performance-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        border-radius: 6px;
+    }
+    
+    .performance-labels {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+    
+    .achievement-badge {
+        background-color: rgba(76, 201, 240, 0.1);
+        border-left: 4px solid var(--primary);
+        padding: 1rem;
+        margin-top: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .achievement-badge i {
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .results-container {
+            padding: 1.5rem;
+        }
+        
+        .results-header h1 {
+            font-size: 1.6rem;
+        }
+        
+        .main-score .score-value {
+            font-size: 3rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

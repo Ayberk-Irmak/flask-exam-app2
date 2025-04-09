@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Soru Yönetimi - PythonQuiz{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1><i class="fas fa-cog"></i> Soru Yönetimi</h1>
+        <a href="#" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Soru Ekle
+        </a>
+    </div>
+    
+    <div class="search-bar">
+        <input type="text" placeholder="Soru ara...">
+        <button class="btn btn-primary">
+            <i class="fas fa-search"></i> Ara
+        </button>
+    </div>
+    
+    <div class="questions-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Soru Metni</th>
+                    <th>Kategori</th>
+                    <th>Zorluk</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question in questions %}
+                <tr>
+                    <td>{{ question.id }}</td>
+                    <td>{{ question.text[:50] }}{% if question.text|length > 50 %}...{% endif %}</td>
+                    <td>{{ question.category }}</td>
+                    <td>
+                        <span class="badge {{ question.difficulty }}">
+                            {% if question.difficulty == 'easy' %}Kolay
+                            {% elif question.difficulty == 'medium' %}Orta
+                            {% else %}Zor
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if question.is_active %}
+                            <span class="status active"><i class="fas fa-check-circle"></i> Aktif</span>
+                        {% else %}
+                            <span class="status inactive"><i class="fas fa-times-circle"></i> Pasif</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions">
+                        <a href="#" class="btn-icon" title="Düzenle">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" class="btn-icon danger" title="Sil">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="pagination">
+        <a href="#" class="btn btn-outline"><i class="fas fa-chevron-left"></i></a>
+        <a href="#" class="btn btn-primary">1</a>
+        <a href="#" class="btn btn-outline">2</a>
+        <a href="#" class="btn btn-outline">3</a>
+        <a href="#" class="btn btn-outline"><i class="fas fa-chevron-right"></i></a>
+    </div>
+</div>
+
+<style>
+    .admin-container {
+        background-color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .admin-header h1 {
+        font-size: 1.8rem;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .search-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .search-bar input {
+        flex: 1;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .questions-table {
+        overflow-x: auto;
+        margin-bottom: 2rem;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    th {
+        background-color: var(--light);
+        font-weight: 600;
+    }
+    
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .badge.easy {
+        background-color: rgba(76, 201, 240, 0.1);
+        color: var(--success);
+    }
+    
+    .badge.medium {
+        background-color: rgba(248, 150, 30, 0.1);
+        color: var(--warning);
+    }
+    
+    .badge.hard {
+        background-color: rgba(247, 37, 133, 0.1);
+        color: var(--danger);
+    }
+    
+    .status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .status.active {
+        color: var(--success);
+    }
+    
+    .status.inactive {
+        color: var(--danger);
+    }
+    
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--primary);
+        transition: all 0.3s;
+    }
+    
+    .btn-icon:hover {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .btn-icon.danger {
+        background-color: rgba(247, 37, 133, 0.1);
+        color: var(--danger);
+    }
+    
+    .btn-icon.danger:hover {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .search-bar {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

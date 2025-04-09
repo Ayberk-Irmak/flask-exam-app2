@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Ana Sayfa - PythonQuiz{% endblock %}
+
+{% block content %}
+<div class="card welcome-card">
+    <div class="welcome-content">
+        <h1>Python Becerilerinizi Test Edin</h1>
+        <p class="subtitle">Flask, Django, Veri Bilimi, Yapay Zeka ve daha fazlası hakkındaki bilginizi ölçün.</p>
+        
+        <form action="{{ url_for('start_quiz') }}" method="post" class="quiz-form">
+            <div class="form-group">
+                <label for="username">Kullanıcı Adı</label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Kullanıcı adınızı girin">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-play"></i> Sınava Başla
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card stats-card">
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-value">{{ global_high }}</div>
+            <div class="stat-label">Global Rekor</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ user_high }}</div>
+            <div class="stat-label">En Yüksek Skorunuz</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .welcome-card {
+        text-align: center;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .welcome-content {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .welcome-card h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+    }
+    
+    .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+    
+    .quiz-form {
+        margin-top: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .stats-card {
+        padding: 1.5rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .stat-item {
+        background-color: var(--light);
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+    
+    @media (max-width: 768px) {
+        .welcome-card h1 {
+            font-size: 1.8rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
